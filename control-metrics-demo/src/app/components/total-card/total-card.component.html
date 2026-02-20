@@ -1,0 +1,28 @@
+<div
+  class="bg-white rounded-lg text-left overflow-hidden shadow transform transition-all border-l-4"
+  [ngClass]="color"
+>
+  <!-- Contenedor interno -->
+  <div class="bg-white p-3">
+    <div class="flex items-start">
+      <div class="text-center sm:text-left">
+        <!--Etiqueta descriptiva enviada por el padre-->
+        <h3 class="text-xs sm:text-sm leading-4 font-medium text-gray-400">
+          {{ label }}
+        </h3>
+
+        <!--
+             Valor final formateado
+             Se concatena el símbolo de moneda recibido
+             junto con el valor ya procesado
+        -->
+        <p
+          class="text-sm font-semibold text-gray-900"
+          style="white-space: nowrap"
+        >
+          {{ simboloMoneda }}{{ displayValor }}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
