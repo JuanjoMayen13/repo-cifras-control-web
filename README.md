@@ -144,8 +144,94 @@ if (this.rangoSeleccionado?.hasta) {
 > En la demo, los inputs de fecha son únicamente ilustrativos y no tienen lógica asociada.
 
 ---
+## 6. TotalCardComponent – Detalle del Componente Visual
 
-##  6. Renderizado Dinámico
+`TotalCardComponent` es el componente de presentación principal encargado de renderizar cada tarjeta de cifra de control. 
+---
+
+### Inputs
+
+| Input | Tipo | Default | Descripción |
+|---|---|---|---|
+| `label` | `string` | `''` | Texto descriptivo de la métrica. Ej: `"Gran Total"`, `"IVA"` |
+| `valor` | `number` | `0` | Valor numérico ya mapeado desde el padre |
+| `color` | `string` | `'border-blue-500'` | Clase Tailwind dinámica para el color del borde izquierdo |
+| `simboloMoneda` | `string` | `''` | Prefijo de moneda. Ej: `"Q "`, `"$ "` |
+
+---
+
+### Lógica del Componente (TypeScript)
+```ts
+export class TotalCardComponent {
+
+  @Input() label: string = '';
+  @Input() valor: number = 0;
+  @Input() color: string = 'border-blue-500';
+  @Input() simboloMoneda: string = '';
+
+  // Valor interno ya formateado, listo para mostrar en el template
+  displayValor: string = '0.00';
+
+  ngOnInit() {
+    // Se realiza el formateo inicial del valor recibido
+    // El componente padre ya envió el número, aquí solo se transforma para UI
+    this.displayValor = this.formatNumber(this.valor);
+  }
+
+  // Método encargado de formatear el número con:
+  // - 2 decimales fijos
+  // - Separador de miles con coma
+  formatNumber(value: number): string {
+    const num = value.toFixed(2);           // Fija 2 decimales
+    const parts = num.split('.');           // Separa parte entera y decimal
+    const integerPart = parts[0];
+    const decimalPart = parts[1];
+
+    const reg = /\B(?=(\d{3})+(?!\d))/g;   // Regex para separador de miles
+    const formattedInteger = integerPart.replace(reg, ',');
+
+    return `${formattedInteger}.${decimalPart}`;  // Reconstruye el número formateado
+  }
+}
+```
+
+**¿Por qué usar `displayValor` en lugar de formatear en el template?**
+
+- Mantiene el template limpio y libre de lógica
+- Centraliza el formateo en un único punto
+- Facilita pruebas unitarias sobre el método `formatNumber`
+- Separa el valor original (`valor`) del valor visual (`displayValor`)
+
+---
+
+### Template (HTML)
+```html
+<div
+  class="bg-white rounded-lg text-left overflow-hidden shadow transform transition-all border-l-4"
+  [ngClass]="color"
+>
+  <div class="bg-white p-3">
+    <div class="flex items-start">
+      <div class="text-center sm:text-left">
+
+        <!-- Etiqueta descriptiva enviada por el padre -->
+        <h3 class="text-xs sm:text-sm leading-4 font-medium text-gray-400">
+          {{ label }}
+        </h3>
+
+        <!-- Valor formateado con símbolo de moneda -->
+        <p class="text-sm font-semibold text-gray-900" style="white-space: nowrap">
+          {{ simboloMoneda }}{{ displayValor }}
+        </p>
+
+      </div>
+    </div>
+  </div>
+</div>
+```
+---
+
+##  7. Renderizado Dinámico
 
 Las tarjetas se renderizan con `*ngFor`:
 ```html
@@ -162,7 +248,7 @@ El componente visual recibe `label`, `valor`, `color` y `simboloMoneda`, lo que 
 
 ---
 
-##  7. Responsabilidad del TotalCardComponent
+##  8. Responsabilidad del TotalCardComponent
 
 El componente `TotalCardComponent`:
 
@@ -171,11 +257,11 @@ El componente `TotalCardComponent`:
 -  No conoce filtros
 -  Solo muestra datos formateados
 
-> Esto cumple el **principio de responsabilidad única (SRP)**.
+> Esto cumple el **principio de responsabilidad única**.
 
 ---
 
-##  8. Cómo Replicar Esta Lógica
+##  9. Cómo Replicar Esta Lógica
 
 Para implementar este patrón en otro módulo:
 
@@ -185,3 +271,5 @@ Para implementar este patrón en otro módulo:
 4. Transformar modelo backend a modelo UI
 5. Renderizar componente visual reutilizable
 6. Mantener el componente visual desacoplado
+
+---
